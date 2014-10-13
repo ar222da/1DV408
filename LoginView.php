@@ -2,109 +2,132 @@
 
 class LoginView {
     private $model;
+    private $statusMessage;
+    private $loginMessage;
+    private $form;
+    private $formMessage;
+    private $registerButton;
+    private $logoutButton;
    
     public function __construct(LoginModel $model)
     {
         $this->model = $model;
     }
     
-    public function didUserSubmit()                                     // Har användaren skickat iväg formuläret?
+    public function didUserSubmit()
     {
         if (isset($_POST["login"]))
-        {
-            $_GET["logout"] = NULL;
             return true;
-        }
         return false;
     }
     
-    public function didUserLogout()                                     // Har användaren klickat på länken "logga ut"?
+    public function didUserChoseToBeKeptLoggedIn()                      
+    {
+        if (isset($_POST["keepmeloggedin"]))
+            return true;
+        return false;
+    }
+    
+    public function didUserLogout()
     {
         if (isset($_GET["logout"]))
-        {
-           return true;
-        }
+            return true;
         return false;
     }
     
-   public function getUserName()                                        // Hämta ut användarnamnet från input-fält i formuläret
-   {
-       $userName = $_POST["username"];
-       return $userName;
-   }
+    public function getUserName()                                        // Hämta ut användarnamnet från input-fält i formuläret
+    {
+        $userName = $_POST["username"];
+        return $userName;
+    }
    
-   public function getPassword()                                        // Hämta ut lösenord från input-fält i formuläret
+    public function getPassword()                                        // Hämta ut lösenord från input-fält i formuläret
+    {
+        $password = $_POST["password"];
+        return $password;
+    }
 
-   {
-       $password = $_POST["password"];
-       return $password;
-   }
+    public function setStatusMessage($message)
+    {
+        $this->statusMessage = $message;
+    }
+   
+    public function setLoginMessage($message)
+    {
+        $this->loginMessage = $message;
+    }
     
+    public function setFormMessage($message)
+    {
+        $this->formMessage = $message;
+    }
+
+    public function setForm()
+    {
+        $this->form =  "<form action='?login' method='post'>
+                        <fieldset>
+                        <legend>Login - skriv in användarnamn och lösenord</legend>";
+        if (!empty($this->formMessage))
+                        {
+                            $this->form .="<p>";
+                            $this->form .= $this->formMessage;
+                            $this->form .="</p>";
+                        }
+        $userName = $this->getUserName();
+        $this->form .="
+                        Användarnamn: <input type=text name=username value='$userName'>
+                        Lösenord: <input type=password name=password>
+                        Håll mig inloggad: <input type=checkbox name=keepmeloggedin>
+                        <br>
+                            <input type='submit' value='Logga in' name='login'/>
+                        </fieldset>
+                        </form>";
+    }
+
+    public function setRegisterButton()
+    {
+        $this->registerButton = "<a href=''>Registrera ny användare</a>";
+    }
+    
+    public function setLogoutButton()
+    {
+        $this->logoutButton = "<a href='index.php?logout'>Logga ut</a>"; 
+    }
+       
     public function showScreen()
     {
-                                                                        // OBS! Här görs faktiskt en extra HTTP-request varje gång
-                                                                        // Viktigt att tänka på när man använder kontroller som använder sig 
-                                                                        // av räknare för antal sidbesök i session
-        $urlWithParameters = $_SERVER['REQUEST_URI'];                   // Efter att man har loggat genom att ha tryckt på länken
-        $url = $_SERVER['PHP_SELF'];                                    // så blir parametrarna som skickas med kvar i URL-fältet
-                                                                        // Detta som följer tar bort parametrarna
-        if ($urlWithParameters != $url)
-        {
-            header('Location:'.$url);                                   // En ny HTTP-request          
-        }
-      
-        // Innehållet i HTML-strängen, beror på vad som hämtas från model vad som ska ingå i strängen
+       // Innehållet i HTML-strängen
         $ret = "                                                           
             <h1>Laborationskod ar222da</h1>";
-                                                        
             
-            if ($this->model->userAuthenticated())                      // Användare inloggad? Denna returnerar status från $_SESSION
-            {
-                $ret .= "<h2>Admin är inloggad</h2>";
-                
-                $numberOfVisitsAsAuthenticated = $this->model->getNumberOfVisitsAsAuthenticated();
-                
-                if ($numberOfVisitsAsAuthenticated === 1)               // "Inloggning lyckades" ska bara skrivas ut om det är första  
-                {                                                       // gången för sessionen som användaren är inloggad.   
-                    $ret .= "<p>Inloggning lyckades</p>";               
-                }
-                
-                $ret .= "<a href='?logout'>Logga ut</a>";
-
-            }
-            
-            else                                                        // Om inte inloggad
-            {
-               $ret .= "<a href=>Registrera ny användare</a>
-                <h2>Ej inloggad</h2>
-                <form action='' method='post'>
-                    <fieldset>
-                    <legend>Login - skriv in användarnamn och lösenord</legend>";
-                    $this->model->getNumberOfVisitsAsDeauthenticated();
-                    
-                                                                        // Skriv ut eventuella felmeddelanden eller statusmeddelande
-                    $message = $this->model->getMessage();              // efter utloggning.
-                    
-                    if (!empty($message))
-                    {
-                        $ret .="<p>";
-                        $ret .=$message;
-                        $ret .="</p>";
-                    }
-                    
-                    $userName = $this->getUserName();
-                    $ret .="
-                    Användarnamn: <input type=text name=username value=$userName>
-                    Lösenord: <input type=password name=password>
-                    Håll mig inloggad: <input type=checkbox name=keepmeloggedin>
-                    <br>
-                    <input type='submit' value='Logga in' name='login'/>
-                    </fieldset>
-                </form>";
-            }
+        if (!empty($this->registerButton))
+        {
+            $ret .= $this->registerButton;
+        }
         
+        $ret .= "<h2>";
+        $ret .= $this->statusMessage;
+        $ret .= "</h2>";
+        
+        if (!empty($this->loginMessage))
+        {
+            $ret .="<p>";
+            $ret .= $this->loginMessage;
+            $ret .="</p>";
+        }
+        
+        if (!empty($this->form))
+        {
+            $ret .= $this->form;
+        }
+        
+        if (!empty($this->logoutButton))
+        {
+            $ret .= $this->logoutButton;
+        }
+
         return $ret;
     }
 
+    
 }
-

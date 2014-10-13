@@ -9,6 +9,7 @@ class HTMLView
             <html>
             <head>
             <meta charset=\"utf-8\">
+            <title>Laboration 2</title>
             </head>
             <body>
                 $body

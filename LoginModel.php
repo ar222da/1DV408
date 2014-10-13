@@ -1,59 +1,56 @@
 <?php
 
 class LoginModel {
-    
-    private $authenticated = false;
-    private $message = "";
 
     public function __construct() {
         
     }
     
-    public function userAuthenticated()                                     // Returnerar inloggningsstatus från $_SESSION
+    public function isLoggedIn()
     {
-        if ($_SESSION["authenticated"] === true)
-            return true;
-        return false;
+        return $_SESSION["isLoggedIn"];
     }
     
-    public function getMessage()
+    public function isLoggedOut()
     {
-        if ($_SESSION["message"] === 1)
-        {
-            return "Användarnamn saknas";
-        }
-        
-        else if ($_SESSION["message"] === 2)
-        {
-            return "Lösenord saknas";
-        }
-
-        else if ($_SESSION["message"] === 3)
-        {
-            return "Felaktigt användarnamn och/eller lösenord";
-        }
-        
-        else if ($_SESSION["message"] === 4)
-        {
-            if ($_SESSION["counterAsDeauthenticated"] === 2)
-                return "Du har nu loggat ut";
-            return;
-        }
-
+        return $_SESSION["isLoggedOut"];
+    }
+    
+    public function firstVisitInSession()
+    {
+        if (isset($_SESSION["isLoggedIn"]))
+            return false;
+        return true;
+    }
+    
+    public function succeededLogin()
+    {
+        return $_SESSION["succeededLogin"];
+    }
+    
+    public function failedLogin()
+    {
+        return $_SESSION["failedLogin"];
+    }
+    
+    public function getFailedLoginMessage()
+    {
+       return $_SESSION["failedLoginMessage"];
     }
 
-    public function authenticateUser($userName, $password)
+    public function loginUser($userName, $password)
     {
-        
         if (trim($userName, " ") == "")
         {
-            $_SESSION["message"] = 1;
+            $_SESSION["failedLogin"] = true;
+            $_SESSION["failedLoginMessage"] = "Användarnamn saknas";
             
         }
         
         else if (trim($password, " ") == "")
         {
-            $_SESSION["message"] = 2;
+            $_SESSION["failedLogin"] = true;
+            $_SESSION["failedLoginMessage"] = "Lösenord saknas";
         }
         
         else
@@ -66,48 +63,33 @@ class LoginModel {
             
                 if (($userCredentials[0] === $userName) && ($userCredentials[1] === $password))
                 {
-                    $_SESSION["authenticated"] = true;
-                    $_SESSION["counterAsAuthenticated"] = 0;
+                    $_SESSION["succeededLogin"] = true;
+                    $_SESSION["failedLogin"] = false;
+                    $_SESSION["isLoggedIn"] = true;
                     break;
                 }
                 
                 else if (($userCredentials[0] !== $userName) || ($userCredentials[1] !== $password))
                 {
-                    $_SESSION["message"] = 3;
-                    $_SESSION["authenticated"] = false;
+                    $_SESSION["failedLogin"] = true;
+                    $_SESSION["failedLoginMessage"] = "Felaktigt användarnamn och/eller lösenord";
                 }
             }
         }
     }
-        
-    public function deauthenticateUser()
-    {
-        $_SESSION["message"] = 4;
-        $_SESSION["authenticated"] = false;
-        $_SESSION["counterAsDeauthenticated"] = 0;
-    }
     
-    public function getNumberOfVisitsAsAuthenticated()
+    public function logoutUser()
     {
-        if (isset($_SESSION["counterAsAuthenticated"]))
+        if ($_SESSION["isLoggedIn"])
         {
-            $_SESSION["counterAsAuthenticated"] += 1;
+            $_SESSION["isLoggedIn"] = false;
+            $_SESSION["isLoggedOut"] = true;
         }
-       
-        return $_SESSION["counterAsAuthenticated"];
-        
-    }
-    
-    public function getNumberOfVisitsAsDeauthenticated()
-    {
-        if (isset($_SESSION["counterAsDeauthenticated"]))
+        else
         {
-            $_SESSION["counterAsDeauthenticated"] += 1;
+            $_SESSION["isLoggedOut"] = false;
         }
-       
-        return $_SESSION["counterAsDeauthenticated"];
-        
+        //setcookie("LoginView::UserName", "", -240);
+        //setcookie("LoginView::Password", "", -240);
     }
-    
-
 }

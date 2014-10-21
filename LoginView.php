@@ -8,6 +8,7 @@ class LoginView {
     private $formMessage;
     private $registerButton;
     private $logoutButton;
+    private $dateTime;
    
     public function __construct(LoginModel $model)
     {
@@ -93,6 +94,75 @@ class LoginView {
     {
         $this->logoutButton = "<a href='index.php?logout'>Logga ut</a>"; 
     }
+    
+    public function setDate()
+    {
+        $d = date('D');
+        if ($d === "Mon")
+            $sd = "Måndag";
+        if ($d === "Tue")
+            $sd = "Tisdag";
+        if ($d === "Wed")
+            $sd = "Onsdag";
+        if ($d === "Thu")
+            $sd = "Torsdag";
+        if ($d === "Fri")
+            $sd = "Fredag";
+        if ($d === "Sat")
+            $sd = "Lördag";
+        if ($d === "Sun")
+            $sd = "Söndag";
+            
+        $dn = date('j');
+        
+        $m = date('M');
+        if ($m === "Jan")
+            $sm = "Januari";
+        if ($m === "Feb")
+            $sm = "Februari";
+        if ($m === "Mar")
+            $sm = "Mars";
+        if ($m === "Apr")
+            $sm = "April";
+        if ($m === "May")
+            $sm = "Maj";
+        if ($m === "Jun")
+            $sm = "Juni";
+        if ($m === "Jul")
+            $sm = "Juli";
+        if ($m === "Aug")
+            $sm = "Augusti";
+        if ($m === "Sep")
+            $sm = "September";
+        if ($m === "Oct")
+            $sm = "Oktober";
+        if ($m === "Nov")
+            $sm = "November";
+        if ($m === "Dec")
+            $sm = "December";
+            
+        $y = date('Y');
+        
+        $h = date('H');
+        $m = date('i');
+        $s = date('s');
+        
+        $this->dateTime = $sd;
+        $this->dateTime .= ", den ";
+        $this->dateTime .= $dn;
+        $this->dateTime .= " ";
+        $this->dateTime .= $sm;
+        $this->dateTime .= " år ";
+        $this->dateTime .= $y;
+        $this->dateTime .=". Klockan är ";
+        $this->dateTime .= "[";
+        $this->dateTime .= $h;
+        $this->dateTime .= ":";
+        $this->dateTime .= $m;
+        $this->dateTime .= ":";
+        $this->dateTime .= $s;
+        $this->dateTime .= "].";
+    }
        
     public function showScreen()
     {
@@ -119,12 +189,16 @@ class LoginView {
         if (!empty($this->form))
         {
             $ret .= $this->form;
+            $ret .= "<br>";
         }
         
         if (!empty($this->logoutButton))
         {
             $ret .= $this->logoutButton;
+            $ret .= "<br><br>";
         }
+        
+        $ret .= $this->dateTime;
 
         return $ret;
     }

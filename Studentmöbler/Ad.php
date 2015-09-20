@@ -1,4 +1,5 @@
 <?php
+require_once ("Exceptions.php");
 
     class Ad 
     {
@@ -65,17 +66,17 @@
             
             if (isset($header) === true && $header === '')
             {
-                throw new Exception ("En rubrik måste anges.");    
+                throw new HeaderException ("En rubrik måste anges.");    
             }
             
             if (strlen($header) < 4)
             {
-                throw new Exception ("För få tecken i rubrik.");
+                throw new HeaderException ("För få tecken i rubrik.");
             }
             
             if (!preg_match("/[a-öA-Ö]/", $header))
             {
-                throw new Exception ("En rubrik måste anges med bokstäver.");
+                throw new HeaderException ("En rubrik måste anges med bokstäver.");
             }
             
             if (strlen($header) > 20)
@@ -100,12 +101,12 @@
             
             if (isset($description) === true && $description === '')
             {
-                throw new Exception ("En beskrivning måste anges.");
+                throw new DescriptionException ("En beskrivning måste anges.");
             }
             
             if (strlen($description) < 4)
             {
-                throw new Exception ("För få tecken i beskrivning.");
+                throw new DescriptionException ("För få tecken i beskrivning.");
             }
             
             if (strlen($description) > 200)
@@ -130,12 +131,12 @@
             
             if (isset($price) === true && $price === '')
             {
-                throw new Exception ("Ett pris måste anges.");
+                throw new PriceException ("Ett pris måste anges.");
             }
             
             if (!is_numeric($price))
             {
-                throw new Exception ("Pris måste anges som heltal i siffror.");
+                throw new PriceException ("Pris måste anges som heltal i siffror.");
             }
             
             if (strlen($price) > 6)
@@ -161,12 +162,12 @@
             
             if (isset($name) === true && $name === '')
             {
-                throw new Exception ("Ett namn måste anges.");    
+                throw new NameException ("Ett namn måste anges.");    
             }
             
             if (strlen($name) < 2)
             {
-                throw new Exception ("För få tecken i namn.");
+                throw new NameException ("För få tecken i namn.");
             }
             
             if (strlen($name) > 20)
@@ -184,6 +185,16 @@
         public function getName()
         {
             return $this->name;
+        }
+        
+        public function setMail($mail)
+        {
+            $this->mail = $mail;
+        }
+        
+        public function getMail()
+        {
+            return $this->mail;
         }
         
         public function setDate()

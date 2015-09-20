@@ -9,11 +9,27 @@ class AdList_View
     
     public function showLocations($locations)
     {
-        $ret .= "<h1>Orter</h1>";
+        $ret .= "<select>";
         foreach ($locations as $location)
         {
-            $ret .= $location->getId() . " " . $location->getName() . "<br>";
+            $ret .= "<option value=" . $location->getId() . ">" . $location->getName() . "</option>";
         }
+        $ret .= "</select>";
+
         return $ret;
     }
+    
+    public function showTypes($types)
+    {
+        $ret .= "<select>";
+        foreach ($types as $type)
+        {
+            $ret .= "<option value=" . $type->getId() . ">" . $type->getName() . "</option>";
+        }
+        $ret .= "</select>";
+
+        return $ret;
+        
+    }
+    
 }

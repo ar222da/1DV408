@@ -4,6 +4,6 @@
 	
 	$controller = new controller();
     $html = new HTMLView();
-    $body = $controller->getResult();
+    $body = $controller->main();
     $html->echoHTML($body);
 ?>

@@ -6,60 +6,109 @@ class Filter
     {
     }
         
-    // Inmatad sträng valideras tecken för tecken och används för att bygga upp en ny sträng som returneras
-    public function sanitizeText($text, $maxLength)
+    public function sanitizeText($text)
     {
-        $length = strlen($text);
-        $string = "";
+        // Potentiellt farliga tecken tas bort direkt
+        $text = strip_tags($text);
+        $text = stripslashes($text);
+        $text = htmlspecialchars($text);
+        
+        // Rensa bort multipla mellanslag, tabbar, linjebrytningar och returtryckningar före och efter inmatad sträng
+        /*$text = trim($text);
+        $text = trim($text, "\t");
+        $text = trim($text, "\n");
+        $text = trim($text, "\r");*/
 
+        // Av det som återstår av inmatad sträng valideras tecken för tecken och om aktuellt tecken passerar validering används aktuellt tecken
+        // för en ny uppbyggd sträng som är den som slutligen returneras
+        
+        // Längd på originalsträngen
+        $length = strlen($text);
+        // Den nya strängen skapas och är tom
+        $string = "";
+        
+        // Tecken för tecken i originalsträng gås igenom
         for ($i = 0; $i < $length; $i++)
         {
+            // Det akutella tecknet
             $char = substr($text, $i, 1);
+            // Förgående tecken i den nya strängen
             $lastCharOfNewString = substr($string, -1);
             
-            // Överstiger inmatad sträng angiven maxlängd bryts valideringen och den nya strängen returneras
-            if ($i >= $maxLength)
+            // Bokstäver inklusive åäö, siffror samt mellanslag, radbrytning med retur, punkt, komma och (-)-tecken släpps igenom
+            if (ctype_alpha($char) || preg_match("/[åäöÅÄÖ0123456789 '!''\r'.,-]/", $char))
             {
-                break;
-            }
-            
-            if (ctype_alpha($char) || preg_match("/[åäöÅÄÖ0123456789 .,-]/", $char))
-            {
-                // Punkt, komma och (-)-tecken släpps bara igenom som följd till bokstäver och siffror
-                if (preg_match("/[.]/", $char) || preg_match("/[,]/", $char) || preg_match("/[-]/", $char)  ) 
+                
+                // Punkt, komma och (-)-tecken måste kontrolleras vidare 
+                if (preg_match("/[.]/", $char) || preg_match("/[,]/", $char) || preg_match("/[-]/", $char) || preg_match("/[!]/", $char)   ) 
                 {
+                    // Punkt, komma eller (-)-tecknet släppas enbart igenom om förgående tecken är bokstav eller siffra.
+                    // Kontrollera alltså förgeånde tecken som släpptes igenom.
                     if (!ctype_alpha($lastCharOfNewString) && !ctype_digit($lastCharOfNewString) 
                     && !preg_match("/[åäöÅÄÖ]/", $lastCharOfNewString))
                     {
+                        // Aktuellt tecken ignoreras och ny loopomgång ska startas och nästa tecken i originalsträng kontrolleras.
                         continue;
                     }
                     else
                     {
+                        // Aktuellt tecken går igenom och läggs till den nya strängen.
                         $string .= $char;
                     }
                 }
-                // Mellanslag i följd släpps inte igenom
+                
+                // Mellanslag måste kontrolleras vidare
                 else if (preg_match("/[ ]/", $char))
                 {
-                    if (preg_match("/[ ]/", $lastCharOfNewString))
+                    // Förgående tecken i den nya strängen kontrolleras och är det ett mellanslag ignoreras detta nya mellanslag
+                    // Mellanslag efter radbrytning godtas inte heller
+                    if (preg_match("/[ ]/", $lastCharOfNewString) || preg_match("/[\r]/", $lastCharOfNewString) )
                     {
+                        // Aktuellt mellanslag ignoreras
                         continue;
                     }
                     else
                     {
+                        // Mellanslag går igenom och läggs till den nya strängen.
                         $string .= $char;
                     }
                 }
+                
+                // Radbrytning med return måste kontrolleras, de får inte vara flera stycken i följd
+                else if (preg_match("/[\r]/", $char))
+                {
+                    // Förgående tecken i den nya strängen kontrolleras och är det ett mellanslag ignoreras detta nya mellanslag
+                    if (preg_match("/[\r]/", $lastCharOfNewString))
+                    {
+                        // Aktuell radbrytning ignoreras
+                        continue;
+                    }
+                    else
+                    {
+                        // Radbrytning går igenom och läggs till den nya strängen.
+                        $string .= $char;
+                    }
+                }
+                
+                
+                // Om aktuellt tecken varken är mellanslag, punkt, komma eller (-)-tecken är aktuellt tecken en bokstav eller siffra
+                // och kan därmed läggas till direkt till den nya strängen utan vidare kontroll.
                 else
                 {
                     $string .= $char;
                 }
             }
+            
+            
+            // Tecken är varken bokstav, siffra eller ovan tillåtna tecken och ignoreras därmed
             else
             {
                 continue;
             }
         }
+        
+        // Genomgång klar. Den nya strängen returneras.
+        
         return $string;
     }
     

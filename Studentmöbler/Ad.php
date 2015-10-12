@@ -12,50 +12,50 @@ require_once ("Exceptions.php");
         private $price;
         private $name;
         private $mail;
+        private $phone;
         private $date;
         private $imageId;
         
         public function __construct()
         {
-            
         }
-        
+
         public function setId($id)
         {
             $this->id = $id;
         }
         
-        public function getid()
+        public function getId()
         {
             return $this->id;
         }
         
-        public function setTypeId($typeId)
+        public function setType($typeId)
         {
             $this->typeId = $typeId;
         }
         
-        public function getTypeId()
+        public function getType()
         {
             return $this->typeId();
         }
         
-        public function setCategoryId($categoryId)
+        public function setCategory($categoryId)
         {
             $this->categoryId = $categoryId;
         }
         
-        public function getCategoryId()
+        public function getCategory()
         {
             return $this->categoryId;
         }
         
-        public function setLocationId($location)
+        public function setLocation($location)
         {
             $this->location = $location;
         }
         
-        public function getLocationId()
+        public function getLocation()
         {
             return $this->location;
         }
@@ -128,6 +128,8 @@ require_once ("Exceptions.php");
         public function setPrice($price)
         {
             $price = trim($price);
+            $price = preg_replace("/[^0-9]/", "", $price);
+            
             
             if (isset($price) === true && $price === '')
             {
@@ -189,6 +191,16 @@ require_once ("Exceptions.php");
         
         public function setMail($mail)
         {
+            if (isset($mail) === true && $mail === '')
+            {
+                throw new MailException ("Epost måste anges.");    
+            }
+            
+            if (!filter_var($mail, FILTER_VALIDATE_EMAIL))
+            {
+                throw new MailException ("Ogiltig epost.");
+            }
+            
             $this->mail = $mail;
         }
         
@@ -197,6 +209,24 @@ require_once ("Exceptions.php");
             return $this->mail;
         }
         
+        public function setPhone($phone)
+        {
+            if (isset($phone) === true && $phone != '')
+            {
+                if (!preg_match('/^([-+0-9()]+)$/', $phone))
+                {
+                    throw new PhoneException("Ogiltig telefonnumer.");
+                }
+            
+                $this->phone = $phone;
+            }
+            
+        }
+        
+        public function getPhone()
+        {
+            return $this->phone;
+        }
         public function setDate()
         {
             
@@ -207,12 +237,12 @@ require_once ("Exceptions.php");
             return $this->date;
         }
         
-        public function setImageId($imageId)
+        public function setImage($imageId)
         {
             $this->imageId = $imageId;
         }
         
-        public function getImageId()
+        public function getImage()
         {
             return $this->imageId;
         }

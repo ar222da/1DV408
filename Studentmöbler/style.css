@@ -80,6 +80,30 @@ table
     border-bottom:1px solid #eee;
     position:relative;
 }
+.createAdForm label 
+{
+    width:150px;
+    margin-top: 3px;
+    display:inline-block;
+    float:left;
+    padding:3px;
+}
+.createAdForm input 
+{
+    height:20px; 
+    width:220px; 
+    padding:5px 8px;
+}
+.createAdForm textarea 
+{
+    padding:8px; 
+    width:300px;
+    
+}
+.createAdForm button 
+{
+    margin-left:156px;
+}
 /*----------------------------------------------------------------------------------------------------------------------------*/
 
 

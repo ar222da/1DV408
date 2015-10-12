@@ -7,4 +7,5 @@ class DescriptionException extends Exception {};
 class PriceException extends Exception {};
 class NameException extends Exception {};
 class MailException extends Exception {};
+class PhoneException extends Exception {};
 

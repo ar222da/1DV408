@@ -19,67 +19,115 @@ class Controller
     private $adCreateView;
     private $adListView;
     
+    private $keys = array('Type', 'Category', 'Header', 'Description', 'Price', 'Location', 'Name', 'Mail', 'Phone', 'Image1', 'Image2', 'Image3');
+            
+    
     public function __construct()
     {
+        // Databasanslutningsobjekt
         $this->db = new db_connection();
+        // Servicelagerobjekt för annonstyper
         $this->typeService = new Type_Service($this->db->getDb());
+        // Servicelagerobjekt för annonskategorier
         $this->categoryService = new Category_Service($this->db->getDb());
+        // Servicelagerobjekt för orter
         $this->locationService = new Location_Service($this->db->getDb());
         
-        $this->adCreateView = new AdCreate_View();
-        //$this->adListView = new AdList_View();
+        // View-objekt för ny annons. Dess array där värden från input-fälten läggs in, får nyckeluppsättningen som deklareras i nyckelarrayen       
+        $this->adCreateView = new AdCreate_View($this->keys);
+
         
     }
     
     public function main()
     {
-        $ad = new Ad();
-        $messageKeys = array('type', 'category', 'header', 'description', 'price', 'location', 'name', 'mail');
-        $messages = array_fill_keys($messageKeys, '');
-        $errors = false;
-
-            try 
-            {
-                $ad->setHeader("!!!!!!!");
-            }
-            catch (HeaderException $e)
-            {
-                $messages[header] = $e->getMessage();
-            }
-            try
-            {
-                $ad->setName("!");
-            }
-            catch (NameException $e)
-            {
-                $messages[name] = $e->getMessage();
-            }
         
-        $length = count($messages);
-        foreach ($messageKeys as $messageKey)
+        
+        // UR 1: Bergäran om skapande av annons
+        
+        // UR 2: Begäran om förhandsgranskning av nyskapad annons
+        
+        // UR 3: Begäran om publicering av nyskapad annons
+        
+        // UR 4: Begärnan om komplett lista över annonser
+        
+        // UR 5: Begäran om komplett lista utifrån vald kategori
+        
+        // UR 6: Begäran om lista utifrån sökparametrar
+        
+        // UR 7: Begäran om kontakt med annonsör för vald annons
+        
+        // UR 8: Begäran om redigering av annons
+        
+        // UR 9: Begäran om borttagning av annons
+        
+        
+        
+        
+        
+        if ($this->adCreateView->publishAdRequest())
         {
-            if ($messages[$messageKey] != "")
+            $ad = new Ad();
+            $filter = new Filter();
+            $errors = false;
+            $messages = array_fill_keys($this->keys, '');
+            
+            // Varje input-fälts värde i View förs över via filter till motsvarande egenskap för annonsobjekt där validering sker 
+            foreach ($this->keys as $key)
             {
-                $errors = true;
-                break;
+                try
+                {
+                    // Skickas bilder med ska dessa valideras
+                    if ($key === 'Image1' || $key === 'Image2' || $key === 'Image3')
+                    {
+                        if ($this->adCreateView->imageUploaded())
+                        {
+                            $messages[$key] = "En bild har laddats upp.";
+                        }
+                        
+                    }
+                    else
+                    {
+                        $function = "set" . $key;
+                        $ad->$function($filter->sanitizeText($this->adCreateView->getInput()[$key]));
+                    }
+                }
+                // Upptäcks fel placeras aktuellt felmeddelande från aktuell egenskap i array av meddelanden
+                catch (Exception $e)
+                {
+                    $errors = true;
+                    $messages[$key] = $e->getMessage();
+                }
+            }
+            
+            // Annons passerade inte validering, nytt formulär med felmeddelanden presenteras
+            if ($errors)
+            {
+                $types = $this->typeService->getTypes();
+                $categories = $this->categoryService->getCategories();
+                $locations = $this->locationService->getLocations();
+                $ret = $this->adCreateView->createAdForm($types, $categories, $locations, $messages);
+            }
+            
+            //Annons passerade validering
+            else
+            {
+                foreach ($this->keys as $key)
+                {
+                    $ret .= $this->adCreateView->getInput()[$key];
+                }
             }
         }
-        
-        if (!$errors)
-        {
-            $ret .= "Allt gick helt bra!";
-        }
-        
+            
         else
         {
-            $types = $this->typeService->getTypes();
-            $categories = $this->categoryService->getCategories();
-            $locations = $this->locationService->getLocations();
-    
-            $ret = $this->adCreateView->createAdForm($types, $categories, $locations, $messages);
+                $types = $this->typeService->getTypes();
+                $categories = $this->categoryService->getCategories();
+                $locations = $this->locationService->getLocations();
+                $ret = $this->adCreateView->createAdForm($types, $categories, $locations, $messages);
+            
         }
-        
-       
+            
         
         
            

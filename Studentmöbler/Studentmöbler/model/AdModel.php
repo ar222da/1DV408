@@ -380,7 +380,7 @@ class AdModel
         {
             $to = $this->selectedAd->getMail();
             $subject = "Studentmöbler: " . $this->sender->getName() . " har svarat på din annons.";
-            $txt = $this->sender->getMessage();
+            $txt = "Meddelande: " .$this->sender->getMessage() . "\n\n" . $this->sender->getName() . " har följande e-post: " . $this->sender->getMail();
             $headers = 'From: kundtjanst@nalaka.se' . "\r\n" . 'Reply-To: kundtjanst@nalaka.se' . "\r\n";
             mail($to,$subject,$txt,$headers);
             return true;
